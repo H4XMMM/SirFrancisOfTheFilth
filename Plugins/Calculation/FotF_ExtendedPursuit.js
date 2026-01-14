@@ -51,6 +51,9 @@ Francis of the Filth
 2025/08/05
 Released
 
+2026/01/14
+Patched the combat window not displaying additional rounds (Fix by MMM)
+
 --------------------------------------------------------------------------*/
 
 var FotF_ExtendedPursuitSettings = {
