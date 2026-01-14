@@ -61,16 +61,13 @@ var FotF_ExtendedPursuitSettings = {
 
 (function () {
     //Modify round count
-    var FotF_CheckExtendedPursuit = VirtualAttackControl._calculateAttackAndRoundCount;
-    VirtualAttackControl._calculateAttackAndRoundCount = function (virtualAttackUnit, isAttack, targetUnit) {
-        FotF_CheckExtendedPursuit.call(this, virtualAttackUnit, isAttack, targetUnit);
-        var weapon;
+    var oldCalculateRoundCountFunction = Calculator.calculateRoundCount;
+    Calculator.calculateRoundCount = function (active, passive, weapon) {
+        var rounds = oldCalculateRoundCountFunction.call(this, active, passive, weapon);
 
-        if (isAttack && typeof virtualAttackUnit.roundCount === 'number') {
-            weapon = virtualAttackUnit.weapon;
-            virtualAttackUnit.roundCount += this.extendPursuit(virtualAttackUnit.unitSelf, targetUnit, weapon);
-        }
-    };
+        rounds += VirtualAttackControl.extendPursuit(active, passive, weapon);
+        return rounds;
+    }
 
     //Check for skill activation
     var FotF_AppendExtendedPursuitSkill = SkillRandomizer.isCustomSkillInvokedInternal;
@@ -91,7 +88,7 @@ VirtualAttackControl.extendPursuit = function (active, passive, weapon) {
 
     var i;
     var keyword = FotF_ExtendedPursuitSettings.customKeyword;
-    var tresholds = FotF_ExtendedPursuitSettings.pursuitMultipliers;
+    var thresholds = FotF_ExtendedPursuitSettings.pursuitMultipliers;
     var skill = SkillControl.getPossessionCustomSkill(active, keyword);
     var isPursuit = false;
     var bonusRounds = 0;
@@ -112,8 +109,8 @@ VirtualAttackControl.extendPursuit = function (active, passive, weapon) {
         var passiveAgi = AbilityCalculator.getAgility(passive, ItemControl.getEquippedWeapon(passive));
         var value = Calculator.getDifference();
 
-        for (i = 0; i < tresholds.length; i++) {
-            var value = Calculator.getDifference() * tresholds[i];
+        for (i = 0; i < thresholds.length; i++) {
+            var value = Calculator.getDifference() * thresholds[i];
             if (activeAgi - passiveAgi >= value) {
                 bonusRounds++;
             } else {
